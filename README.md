@@ -16,4 +16,4 @@ Performs final extraction of the dataset sequence, splits video to frames with a
     - Python
     - FFmpeg
 
-Run ``./local_extract.sh <optional> --split````. Use ```--split``` option to split the sequence to subsequences.
+Run ```./local_extract.sh <optional> --split```. Use ```--split``` option to split the sequence to subsequences.
