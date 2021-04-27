@@ -6,3 +6,14 @@
 * [ ] conversion to TUM format
 * [ ] depth projection on rgb visualization
 * [ ] explanation on dataset format and extrinsics/intrinsics
+
+# Local extraction
+
+Performs final extraction of the dataset sequence, splits video to frames with aligned timestamps.
+
+## System requirements
+
+    - Python
+    - FFmpeg
+
+Run ``./local_extract.sh <optional> --split````. Use ```--split``` option to split the sequence to subsequences.
