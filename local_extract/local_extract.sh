@@ -28,14 +28,14 @@ video_files=("$DATA_DIR/$SMARTPHONE_VIDEO_DIR"/*.mp4)
 echo "Found video file ${video_files[0]}"
 SMARTPHONE_VIDEO_PATH="${video_files[0]}"
 
-# # Check if video exists
-# if [ ! -f "$SMARTPHONE_VIDEO_PATH" ]; then
-#     >&2 echo "Smartphone video file doesn't exist"
-# else
-#     ffmpeg -i "$SMARTPHONE_VIDEO_PATH" -vsync 0 "$DATA_DIR/$SMARTPHONE_VIDEO_DIR/frame-%d.png"
-#     python local_extract.py --output "$DATA_DIR"\
-#      --frame_dir "$DATA_DIR/$SMARTPHONE_VIDEO_DIR" --vid "$SMARTPHONE_VIDEO_PATH"
-# fi
+# Check if video exists
+if [ ! -f "$SMARTPHONE_VIDEO_PATH" ]; then
+    >&2 echo "Smartphone video file doesn't exist"
+else
+    ffmpeg -i "$SMARTPHONE_VIDEO_PATH" -vsync 0 "$DATA_DIR/$SMARTPHONE_VIDEO_DIR/frame-%d.png"
+    python local_extract.py --output "$DATA_DIR"\
+     --frame_dir "$DATA_DIR/$SMARTPHONE_VIDEO_DIR" --vid "$SMARTPHONE_VIDEO_PATH"
+fi
 
 while IFS=, read -r seq timestamp col3; do
   echo "Sequence: $seq | starts with $timestamp"

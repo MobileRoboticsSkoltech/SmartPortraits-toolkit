@@ -91,9 +91,8 @@ def split(target_dir, data_dir, timestamps):
 
 def split_csv(target_dir, data_dir, csv_filename, timestamps):
     with open(os.path.join(target_dir, csv_filename), 'r') as csv_file:
-        csv_timestamps = []
-        for line in csv_file:
-            csv_timestamps.append(int(line))
+        csv_timestamps = list(
+            map(lambda line: int(line), csv_file.readlines()))
         sequences = []
         prev = 0
 
