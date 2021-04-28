@@ -28,21 +28,19 @@ video_files=("$DATA_DIR/$SMARTPHONE_VIDEO_DIR"/*.mp4)
 echo "Found video file ${video_files[0]}"
 SMARTPHONE_VIDEO_PATH="${video_files[0]}"
 
-# Check if video exists
-if [ ! -f "$SMARTPHONE_VIDEO_PATH" ]; then
-    >&2 echo "Smartphone video file doesn't exist"
-else
-    ffmpeg -i "$SMARTPHONE_VIDEO_PATH" -vsync 0 "$DATA_DIR/$SMARTPHONE_VIDEO_DIR/frame-%d.png"
-    python local_extract.py --output "$DATA_DIR"\
-     --frame_dir "$DATA_DIR/$SMARTPHONE_VIDEO_DIR" --vid "$SMARTPHONE_VIDEO_PATH"
-fi
+# # Check if video exists
+# if [ ! -f "$SMARTPHONE_VIDEO_PATH" ]; then
+#     >&2 echo "Smartphone video file doesn't exist"
+# else
+#     ffmpeg -i "$SMARTPHONE_VIDEO_PATH" -vsync 0 "$DATA_DIR/$SMARTPHONE_VIDEO_DIR/frame-%d.png"
+#     python local_extract.py --output "$DATA_DIR"\
+#      --frame_dir "$DATA_DIR/$SMARTPHONE_VIDEO_DIR" --vid "$SMARTPHONE_VIDEO_PATH"
+# fi
 
-while IFS=, read -r seq timestamp col3
-do
-    echo "Sequence: $seq | starts with $timestamp"
-    SEQUENCE_TIMESTAMPS=("${SEQUENCE_TIMESTAMPS[@]}" "$timestamp")
-done < "$DATA_DIR"/_sequences_ts/time_ref.csv
-
+while IFS=, read -r seq timestamp col3; do
+  echo "Sequence: $seq | starts with $timestamp"
+  SEQUENCE_TIMESTAMPS=("${SEQUENCE_TIMESTAMPS[@]}" "$timestamp")
+done <"$DATA_DIR"/_sequences_ts/time_ref.csv
 
 # Split to sequences
 if [ "$2" == "--split" ]; then
@@ -50,36 +48,23 @@ if [ "$2" == "--split" ]; then
   if [ ${#SEQUENCE_TIMESTAMPS[@]} -eq 0 ]; then
     echo "No sequence timestamps were found, skipping split"
   else
-    ALL_TOPICS=( "${PCD_TOPICS[@]}" "${IMG_TOPICS[@]}"\
-    "${IMU_TOPICS[@]}" "${TEMP_TOPICS[@]}" "${DEPTH_IMG_TOPICS[@]}" )
-    for topic in "${ALL_TOPICS[@]}" 
-      do
-        if [ ! -d "$DATA_DIR/${topic//\//_}" ]; then
-          >&2 echo "Skipping topic directory which doesn't exist"
-        else
-          python split.py --target_dir "$DATA_DIR/${topic//\//_}" --data_dir "$DATA_DIR" --timestamps "${SEQUENCE_TIMESTAMPS[@]}"
-        fi
-      done
+    ALL_TOPICS=("${DEPTH_IMG_TOPICS[@]}")
+    for topic in "${ALL_TOPICS[@]}"; do
+      if [ ! -d "$DATA_DIR/${topic//\//_}" ]; then
+        echo >&2 "Skipping topic directory which doesn't exist"
+      else
+        python split.py --type file --target_dir "$DATA_DIR/${topic//\//_}" --data_dir "$DATA_DIR" --timestamps "${SEQUENCE_TIMESTAMPS[@]}"
+      fi
+    done
 
-      python split.py --target_dir "$DATA_DIR/$SMARTPHONE_VIDEO_DIR" --data_dir "$DATA_DIR" --timestamps "${SEQUENCE_TIMESTAMPS[@]}"
+    python split.py --type file --target_dir "$DATA_DIR/$SMARTPHONE_VIDEO_DIR" --data_dir "$DATA_DIR" --timestamps "${SEQUENCE_TIMESTAMPS[@]}"
 
-      for cam_info in "${CAM_INFO_TOPICS[@]}"
-        do
-          if [ ! -d "$DATA_DIR/${topic//\//_}" ]; then
-            >&2 echo "Skipping topic directory which doesn't exist"
-          else
-            ind=0
-            for seq in  "${SEQUENCE_TIMESTAMPS[@]}"
-            do
-              rm -rf "$DATA_DIR/seq_$ind/${cam_info//\//_}"
-              mkdir "$DATA_DIR/seq_$ind/${cam_info//\//_}" &&
-              cp "$DATA_DIR/${cam_info//\//_}/camera_info.yaml" "$DATA_DIR/seq_$ind/${cam_info//\//_}/camera_info.yaml"
-              ind=$((ind+1))
-            done
-            rm -rf "$DATA_DIR/seq_$ind/${cam_info//\//_}"
-            mkdir "$DATA_DIR/seq_$ind/${cam_info//\//_}" &&
-            cp "$DATA_DIR/${cam_info//\//_}/camera_info.yaml" "$DATA_DIR/seq_$ind/${cam_info//\//_}/camera_info.yaml"
-          fi
-        done
+    for csv_file in "$DATA_DIR"/"$SMARTPHONE_VIDEO_DIR"/*.csv; do
+      # TODO: split flash csv into subdirectories
+      python split.py --type csv --target_dir "$DATA_DIR/$SMARTPHONE_VIDEO_DIR" --data_dir "$DATA_DIR" --timestamps "${SEQUENCE_TIMESTAMPS[@]}" \
+        --csv "$(basename "$csv_file")"
+    done
+
   fi
+
 fi
