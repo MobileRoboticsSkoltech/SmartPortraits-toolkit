@@ -7,11 +7,11 @@
 * [ ] depth projection on rgb visualization
 * [ ] explanation on dataset format and extrinsics/intrinsics
 
-# Local extraction
+## Local dataset extraction
 
 Performs final extraction of the dataset sequence, splits video to frames with aligned timestamps.
 
-## System requirements
+### System requirements
 
     - Python
     - FFmpeg
