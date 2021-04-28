@@ -13,7 +13,7 @@
 # limitations under the License.
 
 import os
-ALLOWED_EXTENSIONS = ['.jpg', '.jpeg', '.npy', '.png', '.pcd']
+ALLOWED_EXTENSIONS = ['.jpg', '.jpeg', '.npy', '.png']
 
 
 def extract_frame_data(target_dir, video_path):
@@ -21,20 +21,23 @@ def extract_frame_data(target_dir, video_path):
     video_root, video_filename = os.path.split(video_path)
     video_name, _ = os.path.splitext(video_filename)
 
-    with open(os.path.join(target_dir, video_name + "_aligned_timestamps.csv")) as frame_timestamps_file:
+    with open(
+        os.path.join(target_dir, video_name + "_aligned_timestamps.csv")
+    ) as frame_timestamps_file:
         filename_timestamps = list(map(
             lambda x: (x.strip('\n'), int(
                 x)), frame_timestamps_file.readlines()
         ))
-        l = len(list(filter(
+        len_files = len(list(filter(
             lambda x: os.path.splitext(x)[1] in ALLOWED_EXTENSIONS,
             os.listdir(target_dir)
         )))
         # frame number assertion
         assert len(filename_timestamps) == len(list(filter(
             lambda x: os.path.splitext(x)[1] in ALLOWED_EXTENSIONS,
-            os.listdir(target_dir)
-        ))), "Frame number in video %d and timestamp files %d did not match" % (l, len(filename_timestamps))
+            os.listdir(target_dir)))
+        ), "Frame number in video %d and timestamp files %d did not match" % (
+            len_files, len(filename_timestamps))
 
         _, extension = os.path.splitext(os.listdir(target_dir)[0])
         for i, timestamp in enumerate(filename_timestamps):

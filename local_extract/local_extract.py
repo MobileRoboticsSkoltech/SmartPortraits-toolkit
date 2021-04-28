@@ -18,7 +18,7 @@ from src.sm_utils import extract_frame_data
 
 def main():
     parser = argparse.ArgumentParser(
-        description="Extract messages from bag file"
+        description="Perform local extraction"
     )
     parser.add_argument(
         "--path",
@@ -32,10 +32,7 @@ def main():
     parser.add_argument(
         '--frame_dir', help='<Optional> Smartphone frames directory')
     parser.add_argument('--vid', help='<Optional> Smartphone video path')
-
     args = parser.parse_args()
-
-    # TODO: args assertion for dir and vid
     print("Extracting smartphone video frame data..")
     extract_frame_data(args.frame_dir, args.vid)
 
