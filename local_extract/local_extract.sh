@@ -15,8 +15,9 @@
 
 set -eo pipefail
 
+SCRIPT_DIR=$(dirname $(readlink -f $0))
 # Import configuration values
-source extract.conf
+source "$SCRIPT_DIR/extract.conf"
 
 DATA_DIR_=$1
 DATA_DIR=$(echo "$DATA_DIR_" | sed 's:/*$::')
@@ -33,7 +34,7 @@ if [ ! -f "$SMARTPHONE_VIDEO_PATH" ]; then
     >&2 echo "Smartphone video file doesn't exist"
 else
     ffmpeg -i "$SMARTPHONE_VIDEO_PATH" -vsync 0 "$DATA_DIR/$SMARTPHONE_VIDEO_DIR/frame-%d.png"
-    python local_extract.py --output "$DATA_DIR"\
+    python "$SCRIPT_DIR/local_extract.py" --output "$DATA_DIR"\
      --frame_dir "$DATA_DIR/$SMARTPHONE_VIDEO_DIR" --vid "$SMARTPHONE_VIDEO_PATH"
 fi
 
@@ -53,15 +54,15 @@ if [ "$2" == "--split" ]; then
       if [ ! -d "$DATA_DIR/${topic//\//_}" ]; then
         echo >&2 "Skipping topic directory which doesn't exist"
       else
-        python split.py --type file --target_dir "$DATA_DIR/${topic//\//_}" --data_dir "$DATA_DIR" --timestamps "${SEQUENCE_TIMESTAMPS[@]}"
+        python "$SCRIPT_DIR/split.py" --type file --target_dir "$DATA_DIR/${topic//\//_}" --data_dir "$DATA_DIR" --timestamps "${SEQUENCE_TIMESTAMPS[@]}"
       fi
     done
 
-    python split.py --type file --target_dir "$DATA_DIR/$SMARTPHONE_VIDEO_DIR" --data_dir "$DATA_DIR" --timestamps "${SEQUENCE_TIMESTAMPS[@]}"
+    python "$SCRIPT_DIR/split.py" --type file --target_dir "$DATA_DIR/$SMARTPHONE_VIDEO_DIR" --data_dir "$DATA_DIR" --timestamps "${SEQUENCE_TIMESTAMPS[@]}"
 
     for csv_file in "$DATA_DIR"/"$SMARTPHONE_VIDEO_DIR"/*.csv; do
       # TODO: split flash csv into subdirectories
-      python split.py --type csv --target_dir "$DATA_DIR/$SMARTPHONE_VIDEO_DIR" --data_dir "$DATA_DIR" --timestamps "${SEQUENCE_TIMESTAMPS[@]}" \
+      python "$SCRIPT_DIR/split.py" --type csv --target_dir "$DATA_DIR/$SMARTPHONE_VIDEO_DIR" --data_dir "$DATA_DIR" --timestamps "${SEQUENCE_TIMESTAMPS[@]}" \
         --csv "$(basename "$csv_file")"
     done
 
