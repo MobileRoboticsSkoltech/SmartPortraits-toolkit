@@ -33,6 +33,7 @@ SMARTPHONE_VIDEO_PATH="${video_files[0]}"
 if [ ! -f "$SMARTPHONE_VIDEO_PATH" ]; then
     >&2 echo "Smartphone video file doesn't exist"
 else
+    rm -f "$DATA_DIR/$SMARTPHONE_VIDEO_DIR/"*.png
     ffmpeg -i "$SMARTPHONE_VIDEO_PATH" -vsync 0 "$DATA_DIR/$SMARTPHONE_VIDEO_DIR/frame-%d.png"
     python "$SCRIPT_DIR/local_extract.py" --output "$DATA_DIR"\
      --frame_dir "$DATA_DIR/$SMARTPHONE_VIDEO_DIR" --vid "$SMARTPHONE_VIDEO_PATH"
