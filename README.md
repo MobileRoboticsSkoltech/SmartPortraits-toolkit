@@ -1,13 +1,16 @@
-# avatar-dataset-toolkit
+# Toolkit for Avatar dataset
 
 # TODO list
-* [ ]  `local_extract` script with minimal settings for external user
 * [ ] poincloudify example -- how to get point cloud from depth image
 * [ ] conversion to TUM format
 * [ ] depth projection on rgb visualization
 * [ ] explanation on dataset format and extrinsics/intrinsics
 
-## Local dataset extraction
+## Data download
+
+* [ ] TODO -- zhores CLI API for effective data downloading
+
+## Dataset extraction on local machine
 
 Performs final extraction of the dataset sequence, splits video to frames with aligned timestamps.
 
