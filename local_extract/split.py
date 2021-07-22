@@ -18,7 +18,8 @@ from shutil import copyfile
 from src.sm_utils import ALLOWED_EXTENSIONS
 
 FILE_TYPE = 'file'
-CSV_TYPE = 'csv'
+CSV_TYPE_T_FIRST = 'csv_t_first'
+CSV_TYPE_T_LAST = 'csv_t_last'
 
 
 def make_dir_if_needed(dir_path):
@@ -40,7 +41,7 @@ def main():
     )
     parser.add_argument(
         '--type',
-        choices=[FILE_TYPE, CSV_TYPE],
+        choices=[FILE_TYPE, CSV_TYPE_T_FIRST, CSV_TYPE_T_LAST],
         help='<Required> Message type for extraction',
         required=True
     )
@@ -54,8 +55,11 @@ def main():
     if args.type == FILE_TYPE:
         split(args.target_dir, args.data_dir, list(
             map(lambda x: int(x), args.timestamps)))
-    elif args.type == CSV_TYPE:
-        split_csv(args.target_dir, args.data_dir, args.csv, list(
+    elif args.type == CSV_TYPE_T_LAST:
+        split_csv_t_last(args.target_dir, args.data_dir, args.csv, list(
+            map(lambda x: int(x), args.timestamps)))
+    elif args.type == CSV_TYPE_T_FIRST:
+        split_csv_t_first(args.target_dir, args.data_dir, args.csv, list(
             map(lambda x: int(x), args.timestamps)))
 
 
@@ -89,12 +93,49 @@ def split(target_dir, data_dir, timestamps):
                      os.path.join(new_dir, filename))
 
 
-def split_csv(target_dir, data_dir, csv_filename, timestamps):
+def split_csv_t_first(target_dir, data_dir, csv_filename, timestamps):
     with open(os.path.join(target_dir, csv_filename), 'r') as csv_file:
         lines = csv_file.readlines()
-        # csv_timestamps = list(
-        #     map(lambda line: int(line.rsplit(',', 1)[-1]), lines))
-        # # if the file contains anything else but timestamps:
+        print(csv_filename)
+        if (len(lines[0].split(',', 1)) > 1):
+            csv_data = list(
+                map(lambda line:
+                    (',' + line.split(',', 1)[1],
+                        int(line.split(',', 1)[0])),
+                    lines))
+        else:
+            csv_data = list(
+                map(lambda line:
+                    ('', int(line.split(',', 1)[0])),
+                    lines))
+        sequences = []
+        prev = 0
+
+        for timestamp in timestamps:
+            sequences.append(
+                list(filter(lambda x: x[1] < timestamp and x[1] >= prev,
+                            csv_data)))
+            prev = timestamp
+        sequences.append(
+            list(filter(lambda x: x[1] >= timestamp, csv_data)))
+        for i, seq in enumerate(sequences):
+            print("Copying sequence %d..." % i)
+            new_dir = os.path.join(data_dir, "seq_%d" %
+                                   i, os.path.split(target_dir)[-1])
+            make_dir_if_needed(new_dir)
+            # create file with subsequence
+            ind = 0
+            with open(
+                os.path.join(new_dir, csv_filename), 'w+'
+            ) as subsec_file:
+                for data in seq:
+                    subsec_file.write('%d%s' % (data[1], data[0]))
+                    ind += 1
+
+
+def split_csv_t_last(target_dir, data_dir, csv_filename, timestamps):
+    with open(os.path.join(target_dir, csv_filename), 'r') as csv_file:
+        lines = csv_file.readlines()
         print(csv_filename)
         if (len(lines[0].rsplit(',', 1)) > 1):
             csv_data = list(
