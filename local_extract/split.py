@@ -91,29 +91,45 @@ def split(target_dir, data_dir, timestamps):
 
 def split_csv(target_dir, data_dir, csv_filename, timestamps):
     with open(os.path.join(target_dir, csv_filename), 'r') as csv_file:
-        csv_timestamps = list(
-            map(lambda line: int(line), csv_file.readlines()))
+        lines = csv_file.readlines()
+        # csv_timestamps = list(
+        #     map(lambda line: int(line.rsplit(',', 1)[-1]), lines))
+        # # if the file contains anything else but timestamps:
+        print(csv_filename)
+        if (len(lines[0].rsplit(',', 1)) > 1):
+            csv_data = list(
+                map(lambda line:
+                    (line.rsplit(',', 1)[0] + ',',
+                        int(line.rsplit(',', 1)[1])),
+                    lines))
+        else:
+            csv_data = list(
+                map(lambda line:
+                    ('', int(line.rsplit(',', 1)[0])),
+                    lines))
         sequences = []
         prev = 0
 
         for timestamp in timestamps:
             sequences.append(
-                list(filter(lambda x: x < timestamp and x >= prev,
-                            csv_timestamps)))
+                list(filter(lambda x: x[1] < timestamp and x[1] >= prev,
+                            csv_data)))
             prev = timestamp
         sequences.append(
-            list(filter(lambda x: x >= timestamp, csv_timestamps)))
+            list(filter(lambda x: x[1] >= timestamp, csv_data)))
         for i, seq in enumerate(sequences):
             print("Copying sequence %d..." % i)
             new_dir = os.path.join(data_dir, "seq_%d" %
                                    i, os.path.split(target_dir)[-1])
             make_dir_if_needed(new_dir)
             # create file with subsequence
+            ind = 0
             with open(
                 os.path.join(new_dir, csv_filename), 'w+'
             ) as subsec_file:
-                for timestamp in seq:
-                    subsec_file.write('%d\n' % timestamp)
+                for data in seq:
+                    subsec_file.write('%s%d\n' % (data[0], data[1]))
+                    ind += 1
 
 
 if __name__ == '__main__':
