@@ -24,6 +24,7 @@ DATA_DIR=$(echo "$DATA_DIR_" | sed 's:/*$::')
 echo "$DATA_DIR_" "$DATA_DIR/"
 
 SMARTPHONE_VIDEO_DIR="smartphone_video_frames"
+IMU_DIR="_mcu_imu"
 
 video_files=("$DATA_DIR/$SMARTPHONE_VIDEO_DIR"/*.mp4)
 echo "Found video file ${video_files[0]}"
@@ -59,11 +60,15 @@ if [ "$2" == "--split" ]; then
       fi
     done
 
+    for csv_file in "$DATA_DIR"/"$IMU_DIR"/*.csv; do
+      python "$SCRIPT_DIR/split.py" --type csv_t_first --target_dir "$DATA_DIR/$IMU_DIR" --data_dir "$DATA_DIR" --timestamps "${SEQUENCE_TIMESTAMPS[@]}" \
+        --csv "$(basename "$csv_file")"
+    done
+
     python "$SCRIPT_DIR/split.py" --type file --target_dir "$DATA_DIR/$SMARTPHONE_VIDEO_DIR" --data_dir "$DATA_DIR" --timestamps "${SEQUENCE_TIMESTAMPS[@]}"
 
     for csv_file in "$DATA_DIR"/"$SMARTPHONE_VIDEO_DIR"/*.csv; do
-      # TODO: split flash csv into subdirectories
-      python "$SCRIPT_DIR/split.py" --type csv --target_dir "$DATA_DIR/$SMARTPHONE_VIDEO_DIR" --data_dir "$DATA_DIR" --timestamps "${SEQUENCE_TIMESTAMPS[@]}" \
+      python "$SCRIPT_DIR/split.py" --type csv_t_last --target_dir "$DATA_DIR/$SMARTPHONE_VIDEO_DIR" --data_dir "$DATA_DIR" --timestamps "${SEQUENCE_TIMESTAMPS[@]}" \
         --csv "$(basename "$csv_file")"
     done
 
