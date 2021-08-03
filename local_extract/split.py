@@ -15,11 +15,13 @@
 import argparse
 import os
 from shutil import copyfile
+from decimal import Decimal
 from src.sm_utils import ALLOWED_EXTENSIONS
 
 FILE_TYPE = 'file'
 CSV_TYPE_T_FIRST = 'csv_t_first'
 CSV_TYPE_T_LAST = 'csv_t_last'
+time_to_ns = 1
 
 
 def make_dir_if_needed(dir_path):
@@ -49,18 +51,32 @@ def main():
                         help='<Optional> List of sequence timestamps')
     parser.add_argument('--csv', required=False,
                         help='<Optional> CSV for splitting')
-
+    parser.add_argument('--time_unit', required=False,
+                        type=int,
+                        help='<Optional> If timestamp is not in nanoseconds,\
+                            specifies amount to multiply by')
+    parser.add_argument('--space', required=False,
+                        type=int,
+                        help='<Optional> Space separator')
     args = parser.parse_args()
+
+    # TODO: switch to class in this file to get rid of this
+    global time_to_ns
+    if args.time_unit is not None:
+        time_to_ns = args.time_unit
+    sep = ','
+    if args.space is not None:
+        sep = ' '
 
     if args.type == FILE_TYPE:
         split(args.target_dir, args.data_dir, list(
             map(lambda x: int(x), args.timestamps)))
     elif args.type == CSV_TYPE_T_LAST:
         split_csv_t_last(args.target_dir, args.data_dir, args.csv, list(
-            map(lambda x: int(x), args.timestamps)))
+            map(lambda x: int(x), args.timestamps)), sep=sep)
     elif args.type == CSV_TYPE_T_FIRST:
         split_csv_t_first(args.target_dir, args.data_dir, args.csv, list(
-            map(lambda x: int(x), args.timestamps)))
+            map(lambda x: int(x), args.timestamps)), sep=sep)
 
 
 def split(target_dir, data_dir, timestamps):
@@ -93,20 +109,20 @@ def split(target_dir, data_dir, timestamps):
                      os.path.join(new_dir, filename))
 
 
-def split_csv_t_first(target_dir, data_dir, csv_filename, timestamps):
+def split_csv_t_first(target_dir, data_dir, csv_filename, timestamps, sep=','):
     with open(os.path.join(target_dir, csv_filename), 'r') as csv_file:
         lines = csv_file.readlines()
         print(csv_filename)
-        if (len(lines[0].split(',', 1)) > 1):
+        if (len(lines[0].split(sep, 1)) > 1):
             csv_data = list(
                 map(lambda line:
-                    (',' + line.split(',', 1)[1],
-                        int(line.split(',', 1)[0])),
+                    (sep + line.split(sep, 1)[1],
+                        Decimal(line.split(sep, 1)[0])*time_to_ns),
                     lines))
         else:
             csv_data = list(
                 map(lambda line:
-                    ('', int(line.split(',', 1)[0])),
+                    ('', Decimal(line.split(sep, 1)[0])*time_to_ns),
                     lines))
         sequences = []
         prev = 0
@@ -120,8 +136,11 @@ def split_csv_t_first(target_dir, data_dir, csv_filename, timestamps):
             list(filter(lambda x: x[1] >= timestamp, csv_data)))
         for i, seq in enumerate(sequences):
             print("Copying sequence %d..." % i)
-            new_dir = os.path.join(data_dir, "seq_%d" %
-                                   i, os.path.split(target_dir)[-1])
+            if target_dir != data_dir:
+                new_dir = os.path.join(data_dir, "seq_%d" %
+                                       i, os.path.split(target_dir)[-1])
+            else:
+                new_dir = os.path.join(data_dir, "seq_%d" % i)
             make_dir_if_needed(new_dir)
             # create file with subsequence
             ind = 0
@@ -133,20 +152,20 @@ def split_csv_t_first(target_dir, data_dir, csv_filename, timestamps):
                     ind += 1
 
 
-def split_csv_t_last(target_dir, data_dir, csv_filename, timestamps):
+def split_csv_t_last(target_dir, data_dir, csv_filename, timestamps, sep=','):
     with open(os.path.join(target_dir, csv_filename), 'r') as csv_file:
         lines = csv_file.readlines()
         print(csv_filename)
-        if (len(lines[0].rsplit(',', 1)) > 1):
+        if (len(lines[0].rsplit(sep, 1)) > 1):
             csv_data = list(
                 map(lambda line:
-                    (line.rsplit(',', 1)[0] + ',',
-                        int(line.rsplit(',', 1)[1])),
+                    (line.rsplit(sep, 1)[0] + sep,
+                        Decimal(line.rsplit(sep, 1)[1])*time_to_ns),
                     lines))
         else:
             csv_data = list(
                 map(lambda line:
-                    ('', int(line.rsplit(',', 1)[0])),
+                    ('', Decimal(line.rsplit(sep, 1)[0])*time_to_ns),
                     lines))
         sequences = []
         prev = 0
@@ -159,9 +178,12 @@ def split_csv_t_last(target_dir, data_dir, csv_filename, timestamps):
         sequences.append(
             list(filter(lambda x: x[1] >= timestamp, csv_data)))
         for i, seq in enumerate(sequences):
-            print("Copying sequence %d..." % i)
-            new_dir = os.path.join(data_dir, "seq_%d" %
-                                   i, os.path.split(target_dir)[-1])
+            print("Copying sequence %d..." % i)            
+            if target_dir != data_dir:
+                new_dir = os.path.join(data_dir, "seq_%d" %
+                                       i, os.path.split(target_dir)[-1])
+            else:
+                new_dir = os.path.join(data_dir, "seq_%d" % i)
             make_dir_if_needed(new_dir)
             # create file with subsequence
             ind = 0
