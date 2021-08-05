@@ -14,6 +14,7 @@
 
 import os
 ALLOWED_EXTENSIONS = ['.jpg', '.jpeg', '.npy', '.png']
+FRAME_EXT = '.png'
 
 
 def extract_frame_data(target_dir, video_path):
