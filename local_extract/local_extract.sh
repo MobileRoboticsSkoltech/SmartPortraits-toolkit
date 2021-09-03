@@ -16,6 +16,7 @@
 set -eo pipefail
 
 SCRIPT_DIR=$(dirname $(readlink -f $0))
+CAM_TRAJ_PATH="CameraTrajectory.txt"
 # Import configuration values
 source "$SCRIPT_DIR/extract.conf"
 
@@ -72,6 +73,8 @@ if [ "$2" == "--split" ]; then
         --csv "$(basename "$csv_file")"
     done
 
+    python "$SCRIPT_DIR/split.py" --type csv_t_first --target_dir "$DATA_DIR" --data_dir "$DATA_DIR" --timestamps "${SEQUENCE_TIMESTAMPS[@]}" \
+        --csv "$CAM_TRAJ_PATH" --space 1 --time_unit 1000000000
   fi
 
 fi
