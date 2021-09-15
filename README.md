@@ -15,7 +15,8 @@ Dataset is located [HERE: add link]()
 
 ### Structure and format
 
-The data is organized as following. Folder numbers in root directory (`000`, ..., `100`) present order number of recorded person. Every person folder contains 5 pose records named by date with 5 different static poses: 3 in staying position, 2 in sitting position. Every pose record contains data collected from smartphone, depth sensor and IMU in the following format.
+The dataset contains 200 people recorded in different poses and different locations.
+Folder numbers in the root directory (000, ..., 200) present the order number of the recorded person. Every person folder contains 5 records named by date with 5 different static poses: 3 in staying position, 2 in sitting position. Every record contains synchronized data from the smartphone (Samsung S10e), depth sensor (Azure Kinect DK), and external IMU sensor. The recordings were performed with periodical flash blinking (1 Hz).
 
 ```
 Avatar Dataset
@@ -38,11 +39,15 @@ Avatar Dataset
 │    └── date5
 ```
 
-*_azure_depth_image_raw* — contains `.npy` file with depth data 640x480.
+*_azure_depth_camera_info* -- intrinsic parameters of a depth camera in ROS format
 
-*smartphone_video_frames* — contains data recorded on smartphone: video, IMU data, timestamps of flash blinking.
+*_azure_depth_image_raw* -- 1-channel float array 640x576 (distance is presented in meters), name represents a moment of capturing (nanoseconds)
 
-*CameraTrajectory.txt* — camera trajectory in quaternion format.
+*_mcu_imu* -- data from external IMU (3-axis gyroscope, 3-axis accelerometer), every line contains 7 values <timestamp (nanoseconds), gyro-x, gyro-y, gyro-z, accel-x, accel-y, accel-z>
+
+*smartphone_video_frames* -- video recorded on the smartphone (<date>.mp4), exact timestamps of frames in the video (<date>_aligned_timestamps.csv, nanoseconds), timestamps of moments with flash turned on (<date>_aligned_flash.csv, nanoseconds), data from built-in smartphone gyroscope (<date>_aligned_gyro.csv, <gyro-x, gyro-y, gyro-z, nanoseconds>).
+
+*CameraTrajectory.txt* -- trajectory obtained from ORB SLAM, every line contains a timestamp (seconds) and pose quaternion.
 
 ### Intrinsics and extrinsics
 
@@ -82,4 +87,3 @@ Performs final extraction of the dataset sequence, splits video to frames with a
     - FFmpeg
 
 Run ```./local_extract.sh <PATH_TO_SEQUENCE_DIRECTORY> <optional> --split```. Use ```--split``` option to split the sequence to subsequences.
-
