@@ -53,13 +53,13 @@ if __name__ == '__main__':
         accelZ = deque()
 
         for indexGyro, rowGyro in gyro.iterrows():
-            for i in range(index, len(gyro)):
-                if gyro.loc[i, 3] > rowGyro[0]:
+            for i in range(index, len(accel)):
+                if accel.loc[i, 3] > rowGyro[0]:
                     index = i + 1
 
-                    accelX.append(gyro.loc[i, 0])
-                    accelY.append(gyro.loc[i, 1])
-                    accelZ.append(gyro.loc[i, 2])
+                    accelX.append(accel.loc[i, 0])
+                    accelY.append(accel.loc[i, 1])
+                    accelZ.append(accel.loc[i, 2])
 
                     break
 
