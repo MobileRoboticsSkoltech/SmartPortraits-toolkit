@@ -30,9 +30,8 @@ do
         do
             if [[ -d "$POSE" && ! -L "$POSE" ]]
             then
-                echo $POSE
-	            ../local_extract/local_extract.sh $POSE
-	            ./toASL.sh $POSE
+	            $SCRIPT_DIR/../local_extract/local_extract.sh $POSE
+	            $SCRIPT_DIR/toASL.sh $POSE
             fi
         done
     fi

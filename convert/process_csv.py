@@ -44,34 +44,9 @@ if __name__ == '__main__':
         accelPath = sys.argv[4]
         accel = pd.read_csv(accelPath, header=None)
 
-        tempVal = 0
-        index = 0
-        counter = 0
-
-        accelX = deque()
-        accelY = deque()
-        accelZ = deque()
-
-        for indexGyro, rowGyro in gyro.iterrows():
-            for i in range(index, len(accel)):
-                if accel.loc[i, 3] > rowGyro[0]:
-                    index = i + 1
-
-                    accelX.append(accel.loc[i, 0])
-                    accelY.append(accel.loc[i, 1])
-                    accelZ.append(accel.loc[i, 2])
-
-                    break
-
-        data = {
-            imuLabels[0]: gyro[3],
-            imuLabels[1]: gyro[0],
-            imuLabels[2]: gyro[1],
-            imuLabels[3]: gyro[2],
-            imuLabels[4]: accelX,
-            imuLabels[5]: accelY,
-            imuLabels[6]: accelZ
-        }
+        data = pd.merge_asof(gyro, accel, on=3, direction='nearest')
+        data = data.reindex(columns=[3, '0_x', '1_x', '2_x', '0_y', '1_y', '2_y'])
+        data.columns = [imuLabels[0], imuLabels[1], imuLabels[2], imuLabels[3], imuLabels[4], imuLabels[5], imuLabels[6]]
     else:
         data = {
             imuLabels[0]: gyro[3],
@@ -85,4 +60,5 @@ if __name__ == '__main__':
 
     dataframe = pd.DataFrame(data=data)
     dataframe.to_csv(outputFilename, sep=',', encoding='utf-8', index=False, line_terminator='\r\n')
+
 
