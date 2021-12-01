@@ -1,6 +1,6 @@
 #!/bin/bash
 
-SCRIPT_DIR=$(dirname $(readlink -f $0))
+SCRIPT_DIR=$(dirname "$(readlink -f "$0")")
 DATA_DIR=$1
 DATA_DIR=$(echo "$DATA_DIR" | sed 's:/*$::')
 DATA="$DATA_DIR/smartphone_video_frames"
@@ -8,11 +8,11 @@ DATA="$DATA_DIR/smartphone_video_frames"
 mkdir -p "$DATA/cam0/data"
 mkdir -p "$DATA/imu0"
 
-mv $DATA/*.png "$DATA/cam0/data"
+mv "$DATA"/*.png "$DATA/cam0/data"
 
-TIMESTAMPS=($DATA/*timestamps.csv)
-GYRO=($DATA/*gyro.csv)
-ACCEL=($DATA/*accel.csv)
+TIMESTAMPS=("$DATA"/*timestamps.csv)
+GYRO=("$DATA"/*gyro.csv)
+ACCEL=("$DATA"/*accel.csv)
 
 if [ ! -f "${TIMESTAMPS[0]}" ]; then
     >&2 echo "No timestamps!"
@@ -23,11 +23,11 @@ if [ ! -f "${GYRO[0]}" ]; then
 fi
 
 if [ ! -f "${ACCEL[0]}" ]; then
-    python3 "$SCRIPT_DIR/process_csv.py" "$DATA" "$TIMESTAMPS" "$GYRO"
+    python3 "$SCRIPT_DIR/process_csv.py" "$DATA" "${TIMESTAMPS[0]}" "${GYRO[0]}"
     >&2 echo "No accel!"
 else
-    python3 "$SCRIPT_DIR/process_csv.py" "$DATA" "$TIMESTAMPS" "$GYRO" "$ACCEL"
+    python3 "$SCRIPT_DIR/process_csv.py" "$DATA" "${TIMESTAMPS[0]}" "${GYRO[0]}" "${ACCEL[0]}"
 fi
 
-mv $DATA/timestamps.csv $DATA/cam0/data.csv
-mv $DATA/gyro_accel.csv $DATA/imu0/data.csv
+mv "$DATA/timestamps.csv" "$DATA/cam0/data.csv"
+mv "$DATA/gyro_accel.csv" "$DATA/imu0/data.csv"
