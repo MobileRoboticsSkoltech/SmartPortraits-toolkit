@@ -1,0 +1,7 @@
+{
+    "rgb_intristics" :  "s10_standard_intrinsics(1).npy",
+    "transform_intristics" : "azure2s10_standard_extrinsics(1).npy",
+    "depth_conf" : "bandeja_standard.pickle",
+    "res_w" : 1920,
+    "res_h" : 1080
+}
