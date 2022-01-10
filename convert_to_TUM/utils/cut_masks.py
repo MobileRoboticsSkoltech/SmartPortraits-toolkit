@@ -8,7 +8,7 @@ import sys
 import os
 import tqdm
 import json
-from convert_to_tum import pointcloudify_depth, project_pcd_to_depth, smooth_depth
+from utils.convert_to_tum import pointcloudify_depth, project_pcd_to_depth, smooth_depth
 
 
 def convert_from_depth(depth_arr, rgb_cnf, shp, config_file):

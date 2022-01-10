@@ -94,6 +94,6 @@ Perfoms conversion of a video to tom format with masks and corrected masks.
 
     - Python
     - FFmpeg
-    - [U-2-Net](https://github.com/xuebinqin/U-2-Net)
+    - [U-2-Net] (https://github.com/p0l0satik/U-2-Net.git folow the instructions to install version from 2021-Feb-06)
 
 Run ```python3 make_TUM.py <PATH_TO_SEQUENCE_DIRECTORY> <PATH_TO_U-2-Net>```. 

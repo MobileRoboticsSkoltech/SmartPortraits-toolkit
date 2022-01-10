@@ -3,7 +3,7 @@ import subprocess
 from shutil import rmtree
 import argparse
 
-from cut_masks import cut_all_masks
+from utils.cut_masks import cut_all_masks
 
 
 def clean_dir(dir_path):
@@ -36,7 +36,7 @@ if __name__ == "__main__":
     subprocess.run(
         [os.path.join(".", "local_extract", "local_extract.sh"), target])
     subprocess.run(["python3", os.path.join(
-        curr_dir, "convert_to_tum.py"), target, final_folder])
+        curr_dir, "utils/convert_to_tum.py"), target, final_folder])
 
     if not os.path.exists(mask_folder):
         os.mkdir(mask_folder)
