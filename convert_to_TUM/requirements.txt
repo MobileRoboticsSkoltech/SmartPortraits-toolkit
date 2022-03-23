@@ -1,0 +1,6 @@
+numpy
+scikit-learn 
+open3d
+imageio
+tqdm
+scipy

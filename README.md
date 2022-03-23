@@ -87,3 +87,13 @@ Performs final extraction of the dataset sequence, splits video to frames with a
     - FFmpeg
 
 Run ```./local_extract.sh <PATH_TO_SEQUENCE_DIRECTORY> <optional> --split```. Use ```--split``` option to split the sequence to subsequences.
+
+### Sequence conversion to TUM format with masks
+Perfoms conversion of a video to tom format with masks and corrected masks.
+#### System requirements
+
+    - Python
+    - FFmpeg
+    - [U-2-Net] (https://github.com/p0l0satik/U-2-Net.git folow the instructions to install version from 2021-Feb-06)
+
+Run ```python3 make_TUM.py <PATH_TO_SEQUENCE_DIRECTORY> <PATH_TO_U-2-Net>```. 
